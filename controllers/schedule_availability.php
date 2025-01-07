@@ -3,17 +3,19 @@ require 'Database.php';
 $config = require 'config.php';
 $db = new Database($config['database'], 'root', '');
 
-$schoolYearId = $_GET['school_year_id'] ?? null;
-$semesterId   = $_GET['semester_id']    ?? null;
-$departmentId = $_GET['department_id']  ?? null;
-$programId    = $_GET['program_id']     ?? null;
+$schoolYearId = $_GET['school_year_id']     ?? null;
+$semesterId   = $_GET['semester_id']        ?? null;
+$departmentId = $_GET['department_id']      ?? null;
+$programId    = $_GET['program_id']         ?? null;
+$facultyId    = $_GET['faculty_id']         ?? null;
+$sectionId    = $_GET['section_id']         ?? null;
+$roomId       = $_GET['room_id']            ?? null;
+$subjectId    = $_GET['subject_id']         ?? null;
 
-$facultyId = $_GET['faculty_id'] ?? null;
-$sectionId = $_GET['section_id'] ?? null;
-$roomId    = $_GET['room_id']    ?? null;
-$subjectId = $_GET['subject_id'] ?? null;
+// Exclude the schedule being edited from the conflict check
+$excludeScheduleId = $_GET['exclude_schedule_id'] ?? null;
 
-$sql    = "SELECT day, start_time, end_time FROM schedules WHERE 1=1";
+$sql    = "SELECT id, day, start_time, end_time FROM schedules WHERE 1=1";
 $params = [];
 
 if ($schoolYearId) {
@@ -54,11 +56,17 @@ if ($subjectId) {
 }
 
 if (!empty($orClauses)) {
-    $sql .= " AND (" . implode(" OR ", $orClauses) . ")";
-    $params = array_merge($params, $orParams);
+    $sql    .= " AND (" . implode(" OR ", $orClauses) . ")";
+    $params  = array_merge($params, $orParams);
+}
+
+if ($excludeScheduleId) {
+    $sql     .= " AND id <> ?";
+    $params[] = $excludeScheduleId;
 }
 
 $schedules = $db->query($sql, $params)->fetchAll();
+
 $occupiedSlots = [];
 
 function generateTimeBlocks($startTimeStr, $endTimeStr, $intervalMinutes = 30) {
