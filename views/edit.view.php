@@ -2,49 +2,26 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Edit Schedule (Skip Self in Availability Check)</title>
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-    rel="stylesheet"
-  >
-  <link
-    href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css"
-    rel="stylesheet"
-  />
+  <title>Edit Schedule (Merged Display)</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
   <style>
-    .time-table {
-      width: 100%;
-      border-collapse: collapse;
-      table-layout: fixed;
-    }
-    .time-table th, .time-table td {
-      border: 1px solid #ccc;
-      cursor: pointer;
-      user-select: none;
-      text-align: center;
-      padding: 0.3rem;
-      font-size: 0.85rem;
-    }
-    .time-column {
-      width: 120px;
-    }
-    .disabled {
+    .time-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    .time-table th, .time-table td { border: 1px solid #ccc; text-align: center; padding: 0.3rem; font-size: 0.85rem; }
+    .time-column { width: 100px; }
+    .disabled { background-color: #f5c6cb !important; }
+    .merged-cell {
       background-color: #f5c6cb !important;
-      color: #000 !important;
-      cursor: not-allowed;
+      vertical-align: middle;
+      font-weight: bold;
     }
-    .selected {
-      background-color: #c3e6cb !important;
-    }
-    .disabled-table {
-      pointer-events: none;
-      opacity: 0.5;
-    }
+    .selected { background-color: #c3e6cb !important; }
+    .disabled-table { pointer-events: none; opacity: 0.5; }
   </style>
 </head>
 <body>
 <div class="container py-4">
-  <h1>Edit Schedule</h1>
+  <h1>Edit Schedule (Merged Display)</h1>
   <?php if (!empty($error)): ?>
     <div class="alert alert-danger">
       <?= htmlspecialchars($error) ?>
@@ -58,10 +35,7 @@
         <select class="form-select select2" name="school_year_id" id="school_year_id" required>
           <option value="">--Select--</option>
           <?php foreach ($schoolYears as $sy): ?>
-            <option
-              value="<?= $sy['id'] ?>"
-              <?= $schedule['school_year_id'] == $sy['id'] ? 'selected' : '' ?>
-            >
+            <option value="<?= $sy['id'] ?>" <?= $schedule['school_year_id'] == $sy['id'] ? 'selected' : '' ?>>
               <?= htmlspecialchars($sy['name']) ?>
             </option>
           <?php endforeach; ?>
@@ -72,10 +46,7 @@
         <select class="form-select select2" name="semester_id" id="semester_id" required>
           <option value="">--Select--</option>
           <?php foreach ($semesters as $sem): ?>
-            <option
-              value="<?= $sem['id'] ?>"
-              <?= $schedule['semester_id'] == $sem['id'] ? 'selected' : '' ?>
-            >
+            <option value="<?= $sem['id'] ?>" <?= $schedule['semester_id'] == $sem['id'] ? 'selected' : '' ?>>
               <?= htmlspecialchars($sem['label']) ?>
             </option>
           <?php endforeach; ?>
@@ -88,10 +59,7 @@
         <select class="form-select select2" name="department_id" id="department_id" required>
           <option value="">--Select--</option>
           <?php foreach ($departments as $dept): ?>
-            <option
-              value="<?= $dept['id'] ?>"
-              <?= $schedule['department_id'] == $dept['id'] ? 'selected' : '' ?>
-            >
+            <option value="<?= $dept['id'] ?>" <?= $schedule['department_id'] == $dept['id'] ? 'selected' : '' ?>>
               <?= htmlspecialchars($dept['name']) ?>
             </option>
           <?php endforeach; ?>
@@ -102,10 +70,7 @@
         <select class="form-select select2" name="program_id" id="program_id" required>
           <option value="">--Select--</option>
           <?php foreach ($programs as $prog): ?>
-            <option
-              value="<?= $prog['id'] ?>"
-              <?= $schedule['program_id'] == $prog['id'] ? 'selected' : '' ?>
-            >
+            <option value="<?= $prog['id'] ?>" <?= $schedule['program_id'] == $prog['id'] ? 'selected' : '' ?>>
               <?= htmlspecialchars($prog['name']) ?>
             </option>
           <?php endforeach; ?>
@@ -118,10 +83,7 @@
         <select class="form-select select2" name="faculty_id" id="faculty_id" required>
           <option value="">--Select--</option>
           <?php foreach ($faculties as $faculty): ?>
-            <option
-              value="<?= $faculty['id'] ?>"
-              <?= $schedule['faculty_id'] == $faculty['id'] ? 'selected' : '' ?>
-            >
+            <option value="<?= $faculty['id'] ?>" <?= $schedule['faculty_id'] == $faculty['id'] ? 'selected' : '' ?>>
               <?= htmlspecialchars($faculty['lastname'] . ', ' . $faculty['firstname']) ?>
             </option>
           <?php endforeach; ?>
@@ -131,12 +93,9 @@
         <label for="section_id" class="form-label">Section</label>
         <select class="form-select select2" name="section_id" id="section_id">
           <option value="">--Select--</option>
-          <?php foreach ($sections as $section): ?>
-            <option
-              value="<?= $section['id'] ?>"
-              <?= $schedule['section_id'] == $section['id'] ? 'selected' : '' ?>
-            >
-              <?= htmlspecialchars($section['section']) ?>
+          <?php foreach ($sections as $sec): ?>
+            <option value="<?= $sec['id'] ?>" <?= $schedule['section_id'] == $sec['id'] ? 'selected' : '' ?>>
+              <?= htmlspecialchars($sec['section']) ?>
             </option>
           <?php endforeach; ?>
         </select>
@@ -147,12 +106,9 @@
         <label for="room_id" class="form-label">Room</label>
         <select class="form-select select2" name="room_id" id="room_id">
           <option value="">--Select--</option>
-          <?php foreach ($rooms as $room): ?>
-            <option
-              value="<?= $room['id'] ?>"
-              <?= $schedule['room_id'] == $room['id'] ? 'selected' : '' ?>
-            >
-              <?= htmlspecialchars($room['name']) ?>
+          <?php foreach ($rooms as $rm): ?>
+            <option value="<?= $rm['id'] ?>" <?= $schedule['room_id'] == $rm['id'] ? 'selected' : '' ?>>
+              <?= htmlspecialchars($rm['name']) ?>
             </option>
           <?php endforeach; ?>
         </select>
@@ -162,10 +118,7 @@
         <select class="form-select select2" name="subject_id" id="subject_id" required>
           <option value="">--Select--</option>
           <?php foreach ($subjects as $sub): ?>
-            <option
-              value="<?= $sub['id'] ?>"
-              <?= $schedule['subject_id'] == $sub['id'] ? 'selected' : '' ?>
-            >
+            <option value="<?= $sub['id'] ?>" <?= $schedule['subject_id'] == $sub['id'] ? 'selected' : '' ?>>
               <?= htmlspecialchars($sub['code'] . ' - ' . $sub['description']) ?>
             </option>
           <?php endforeach; ?>
@@ -174,7 +127,6 @@
     </div>
 
     <div class="mt-3">
-      <!-- We use this button to fetch conflicts, excluding the current schedule ID. -->
       <button type="button" class="btn btn-info" id="fetchAvailability">Check Availability</button>
     </div>
     <hr class="my-4" />
@@ -182,39 +134,18 @@
     <div class="row g-3">
       <div class="col-md-4">
         <label for="day" class="form-label">Day</label>
-        <input
-          type="text"
-          class="form-control"
-          name="day"
-          id="day"
-          value="<?= htmlspecialchars($schedule['day']) ?>"
-          readonly
-          required
-        >
+        <input type="text" class="form-control" name="day" id="day"
+               value="<?= htmlspecialchars($schedule['day']) ?>" readonly required>
       </div>
       <div class="col-md-4">
         <label for="start_time" class="form-label">Start Time</label>
-        <input
-          type="text"
-          class="form-control"
-          name="start_time"
-          id="start_time"
-          value="<?= htmlspecialchars($schedule['start_time']) ?>"
-          readonly
-          required
-        >
+        <input type="text" class="form-control" name="start_time" id="start_time"
+               value="<?= htmlspecialchars($schedule['start_time']) ?>" readonly required>
       </div>
       <div class="col-md-4">
         <label for="end_time" class="form-label">End Time</label>
-        <input
-          type="text"
-          class="form-control"
-          name="end_time"
-          id="end_time"
-          value="<?= htmlspecialchars($schedule['end_time']) ?>"
-          readonly
-          required
-        >
+        <input type="text" class="form-control" name="end_time" id="end_time"
+               value="<?= htmlspecialchars($schedule['end_time']) ?>" readonly required>
       </div>
     </div>
 
@@ -227,62 +158,55 @@
     <div class="table-responsive">
       <table class="table table-striped table-hover time-table disabled-table" id="timetable">
         <thead>
-          <tr>
-            <th class="time-column">Time</th>
-            <th>Mon</th>
-            <th>Tue</th>
-            <th>Wed</th>
-            <th>Thu</th>
-            <th>Fri</th>
-          </tr>
+        <tr>
+          <th class="time-column">Time</th>
+          <th>Mon</th>
+          <th>Tue</th>
+          <th>Wed</th>
+          <th>Thu</th>
+          <th>Fri</th>
+        </tr>
         </thead>
         <tbody>
-          <?php
-          function generateTimeSlots($start, $end, $interval=30) {
-            $slots = [];
-            $cur   = strtotime($start);
-            $endTS = strtotime($end);
-            while ($cur < $endTS) {
-              $s = date("g:ia", $cur);
-              $cur += $interval * 60;
-              $e = date("g:ia", $cur);
-              $slots[] = "$s-$e";
-            }
-            return $slots;
+        <?php
+        function generateTimeSlots($start, $end, $interval=30) {
+          $slots = [];
+          $cur   = strtotime($start);
+          $endTS = strtotime($end);
+          while ($cur < $endTS) {
+            $s = date("g:ia", $cur);
+            $cur += $interval * 60;
+            $e = date("g:ia", $cur);
+            $slots[] = "$s-$e";
           }
-          foreach (generateTimeSlots("07:30", "17:00", 30) as $slot):
-          ?>
-            <tr>
-              <td class="time-column"><?= htmlspecialchars($slot) ?></td>
-              <td data-day="Mon" data-slot="<?= $slot ?>"></td>
-              <td data-day="Tue" data-slot="<?= $slot ?>"></td>
-              <td data-day="Wed" data-slot="<?= $slot ?>"></td>
-              <td data-day="Thu" data-slot="<?= $slot ?>"></td>
-              <td data-day="Fri" data-slot="<?= $slot ?>"></td>
-            </tr>
-          <?php endforeach; ?>
+          return $slots;
+        }
+        foreach (generateTimeSlots("07:30", "17:00", 30) as $slot):
+        ?>
+          <tr>
+            <td class="time-column"><?= htmlspecialchars($slot) ?></td>
+            <td data-day="Mon" data-slot="<?= $slot ?>"></td>
+            <td data-day="Tue" data-slot="<?= $slot ?>"></td>
+            <td data-day="Wed" data-slot="<?= $slot ?>"></td>
+            <td data-day="Thu" data-slot="<?= $slot ?>"></td>
+            <td data-day="Fri" data-slot="<?= $slot ?>"></td>
+          </tr>
+        <?php endforeach; ?>
         </tbody>
       </table>
     </div>
   </div>
 </div>
 
-<script
-  src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js">
-</script>
-<script
-  src="https://code.jquery.com/jquery-3.6.0.min.js">
-</script>
-<script
-  src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js">
-</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
 $(document).ready(function() {
   $('.select2').select2();
   highlightCurrentSchedule();
 });
 
-// Basic selection logic
 let isMouseDown = false;
 let selectedDay = null;
 let selectedCells = [];
@@ -295,16 +219,9 @@ function clearSelection() {
   selectedCells = [];
 }
 function enableTimetable(enable = true) {
-  if (enable) {
-    $('#timetable').removeClass('disabled-table');
-  } else {
-    $('#timetable').addClass('disabled-table');
-  }
+  if (enable) $('#timetable').removeClass('disabled-table');
+  else $('#timetable').addClass('disabled-table');
 }
-
-/**
- * Pre-select the day/time range of the existing schedule
- */
 function highlightCurrentSchedule() {
   clearSelection();
   const day       = $('#day').val();
@@ -320,7 +237,6 @@ function highlightCurrentSchedule() {
     let [slotStart, slotEnd] = slot.split('-');
     let slotStartTime = parseTimeStr(slotStart);
     let slotEndTime   = parseTimeStr(slotEnd);
-    // Mark as selected if it overlaps the schedule's start/end
     if (slotStartTime >= sTime && slotEndTime <= eTime) {
       cell.classList.add('selected');
       selectedCells.push(cell);
@@ -328,7 +244,6 @@ function highlightCurrentSchedule() {
   });
 }
 
-// Mouse-based selection on the table
 document.getElementById('timetable').addEventListener('mousedown', e => {
   if (e.target.tagName === 'TD' && e.target.dataset.day && !e.target.classList.contains('disabled')) {
     e.preventDefault();
@@ -354,7 +269,6 @@ document.addEventListener('mouseup', () => {
   if (selectedCells.length) {
     let day = selectedCells[0].dataset.day;
     let slotStrs = selectedCells.map(c => c.dataset.slot);
-    // Sort by earliest start time
     slotStrs.sort((a,b) => {
       let aStart = a.split('-')[0];
       let bStart = b.split('-')[0];
@@ -368,9 +282,6 @@ document.addEventListener('mouseup', () => {
   }
 });
 
-/**
- * Check availability via AJAX, excluding the schedule being edited.
- */
 document.getElementById('fetchAvailability').addEventListener('click', () => {
   let sy   = $('#school_year_id').val();
   let sem  = $('#semester_id').val();
@@ -381,20 +292,19 @@ document.getElementById('fetchAvailability').addEventListener('click', () => {
   let rm   = $('#room_id').val();
   let sub  = $('#subject_id').val();
 
-  // ID of the schedule being edited
   let excludeId = "<?= htmlspecialchars($schedule['id']) ?>";
-
   if (!sy || !sem || !dep || !prog || !fac || !sub) {
     alert('Please fill all required fields first.');
     return;
   }
 
-  // Clear table styling
-  $('#timetable td[data-day]').removeClass('disabled selected');
+  $('#timetable td[data-day]')
+    .removeClass('disabled selected merged-cell')
+    .removeAttr('rowspan')
+    .html('');
   clearSelection();
   enableTimetable(false);
 
-  // Build querystring with exclude_schedule_id
   let q = new URLSearchParams({
     school_year_id: sy,
     semester_id: sem,
@@ -410,20 +320,65 @@ document.getElementById('fetchAvailability').addEventListener('click', () => {
   fetch('/schedule/availability?' + q)
     .then(r => r.json())
     .then(data => {
-      // Mark returned slots as disabled
-      data.forEach(occ => {
-        let sel = `#timetable td[data-day='${occ.day}'][data-slot='${occ.slot}']`;
-        let cell = document.querySelector(sel);
-        if (cell) {
-          cell.classList.add('disabled');
+      data.forEach(sched => {
+        let day         = sched.day;
+        let stime       = sched.start_time;
+        let etime       = sched.end_time;
+        let facultyName = sched.faculty_lname + ', ' + sched.faculty_fname;
+        let subj        = sched.subject_code || '';
+        let room        = sched.room_name    || '';
+        let sectionName = sched.section_name || '';
+
+        let blocks = generateBlocks(stime, etime);
+        if (blocks.length === 0) return;
+
+        let firstBlock = blocks[0];
+        let firstTdSel = `#timetable td[data-day='${day}'][data-slot='${firstBlock}']`;
+        let firstTd    = document.querySelector(firstTdSel);
+        if (!firstTd) return;
+
+        let rowSpanCount = blocks.length;
+        firstTd.classList.add('merged-cell');
+        firstTd.rowSpan = rowSpanCount;
+        firstTd.innerHTML = `
+          <div><strong>Subject:</strong> ${subj}</div>
+          <div><strong>Faculty:</strong> ${facultyName}</div>
+          <div><strong>Section:</strong> ${sectionName}</div>
+          <div><strong>Room:</strong> ${room}</div>
+        `;
+
+        for (let i = 1; i < blocks.length; i++) {
+          let nextTd = document.querySelector(`#timetable td[data-day='${day}'][data-slot='${blocks[i]}']`);
+          if (nextTd) nextTd.remove();
         }
       });
       enableTimetable(true);
-      // Re-highlight the user's original schedule cells
       highlightCurrentSchedule();
     })
     .catch(err => console.error(err));
 });
+
+function generateBlocks(startTimeStr, endTimeStr) {
+  let slots = [];
+  let cur   = new Date("01/01/2020 " + startTimeStr);
+  let end   = new Date("01/01/2020 " + endTimeStr);
+  while (cur < end) {
+    let slotStart = formatAMPM(cur);
+    cur.setMinutes(cur.getMinutes() + 30);
+    let slotEnd = formatAMPM(cur);
+    slots.push(`${slotStart}-${slotEnd}`);
+  }
+  return slots;
+}
+function formatAMPM(date) {
+  let hours   = date.getHours();
+  let minutes = date.getMinutes();
+  let ampm    = hours >= 12 ? 'pm' : 'am';
+  hours = hours % 12;
+  hours = hours ? hours : 12;
+  minutes = minutes < 10 ? '0'+minutes : minutes;
+  return hours + ':' + minutes + ampm;
+}
 </script>
 </body>
 </html>
