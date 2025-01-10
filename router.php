@@ -1,5 +1,4 @@
 <?php
-
 $uri = parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH);
 
 $routes = [
@@ -8,9 +7,9 @@ $routes = [
   "/schedule/availability" => "controllers/schedule_availability.php",
   "/schedule/edit" => "controllers/schedule_edit.php",
   "/schedule/delete" => "controllers/schedule_delete.php",
-
-  // New route for viewing faculty schedule
   "/faculty/schedule" => "controllers/faculty_schedule.php",
+  // Added print route
+  "/faculty/schedule/print" => "controllers/faculty_schedule_print.php",
 ];
 
 function routesToController(string $uri, array $routes): void
