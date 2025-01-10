@@ -24,7 +24,7 @@
 <body>
 <div class="container mt-4">
   <h1>Faculty Schedule</h1>
-
+    
   <form method="GET" action="/faculty/schedule" class="row row-cols-lg-auto g-3 align-items-end mb-4">
     <div class="col-12">
       <label class="form-label">Faculty</label>
@@ -57,7 +57,6 @@
       <select name="semester_id" class="form-select select2" required>
         <option value="">--Select--</option>
         <?php foreach ($semesters as $s): ?>
-          <?php // Optionally filter by sy_id if you only want matching SY ?>
           <option value="<?= $s['id'] ?>"
             <?= ($semesterId == $s['id']) ? 'selected' : '' ?>>
             <?= htmlspecialchars($s['label']) ?>
@@ -71,7 +70,19 @@
     </div>
   </form>
 
+  <!-- Show "Print Schedule" only if user has selected the faculty, school year, and semester -->
+  <?php if ($facultyId && $schoolYearId && $semesterId): ?>
+    <a 
+      href="/faculty/schedule/print?faculty_id=<?= urlencode($facultyId) ?>&school_year_id=<?= urlencode($schoolYearId) ?>&semester_id=<?= urlencode($semesterId) ?>"
+      class="btn btn-secondary mb-3"
+      target="_blank"
+    >
+      Print Schedule
+    </a>
+  <?php endif; ?>
+
   <?php
+  // Generate the time slots for table
   function generateTimeSlots($start, $end, $interval=30) {
     $slots = [];
     $cur   = strtotime($start);
@@ -86,10 +97,6 @@
   }
   $allTimeSlots = generateTimeSlots("07:30", "17:00");
   $daysOfWeek   = ["Mon","Tue","Wed","Thu","Fri"];
-
-  // Convert $scheduleData into day-based array
-  // Each item: [ 'day' => 'Mon', 'start_time' => '07:30:00', 'end_time' => '09:00:00', ... ]
-  // We'll merge them in the table below
   ?>
 
   <div class="table-responsive">
@@ -146,14 +153,14 @@ function formatAMPM(date) {
   let hours   = date.getHours();
   let minutes = date.getMinutes();
   let ampm    = (hours >= 12) ? 'pm' : 'am';
-  hours       = hours % 12;
-  hours       = hours ? hours : 12;
-  minutes     = (minutes < 10) ? '0'+minutes : minutes;
+  hours = hours % 12;
+  hours = hours ? hours : 12;
+  minutes = (minutes < 10) ? '0'+minutes : minutes;
   return hours + ':' + minutes + ampm;
 }
 
 function plotSchedule() {
-  // scheduleData is embedded below
+  // scheduleData is coming from PHP
   const data = <?= json_encode($scheduleData) ?>;
 
   data.forEach(sched => {
@@ -181,6 +188,8 @@ function plotSchedule() {
       <div>Section: ${sec}</div>
       <div>Room: ${room}</div>
     `;
+
+    // Remove the extra cells that get merged
     for (let i = 1; i < blocks.length; i++) {
       const nextSel = `td[data-day='${day}'][data-slot='${blocks[i]}']`;
       const nextTd  = document.querySelector(nextSel);

@@ -1,41 +1,31 @@
 <?php
+// File: controllers/faculty_schedule_print.php
+
 require 'Database.php';
 $config = require 'config.php';
 $db = new Database($config['database'], 'root', '');
 
-// Get parameters
+// Grab GET params
 $facultyId    = $_GET['faculty_id']     ?? null;
 $schoolYearId = $_GET['school_year_id'] ?? null;
 $semesterId   = $_GET['semester_id']    ?? null;
 
-$faculties = $db->query("
-    SELECT id, firstname, middlename, lastname
-    FROM faculties
-    ORDER BY lastname, firstname
-")->fetchAll();
-
-$schoolYears = $db->query("
-    SELECT id, name
-    FROM school_years
-    ORDER BY name
-")->fetchAll();
-
-$semesters = $db->query("
-    SELECT id, label, sy_id
-    FROM semesters
-    ORDER BY label
-")->fetchAll();
+// Fetch references (school years, semesters) to display in the print view
+$schoolYears = $db->query("SELECT id, name FROM school_years ORDER BY name")->fetchAll();
+$semesters   = $db->query("SELECT id, label, sy_id FROM semesters ORDER BY label")->fetchAll();
 
 $scheduleData = [];
 $facultyInfo  = null;
 
 if ($facultyId && $schoolYearId && $semesterId) {
+    // (Optional) fetch the faculty's info
     $facultyInfo = $db->query("
         SELECT id, firstname, middlename, lastname
         FROM faculties
         WHERE id = ?
     ", [$facultyId])->fetch();
 
+    // Fetch schedules for that faculty
     $sql = "
         SELECT
           s.id,
