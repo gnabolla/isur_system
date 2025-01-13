@@ -6,14 +6,21 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
   <style>
-    .time-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    .time-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
     .time-table th, .time-table td {
       border: 1px solid #ccc;
       text-align: center;
       padding: 0.3rem;
       font-size: 0.85rem;
     }
-    .time-column { width: 100px; }
+    .time-column {
+      width: 130px;        /* Increased width */
+      white-space: nowrap; /* Prevent text wrapping */
+    }
     .merged-cell {
       background-color: #f5c6cb;
       vertical-align: middle;
@@ -24,7 +31,13 @@
 <body>
 <div class="container mt-4">
   <h1>Faculty Schedule</h1>
-    
+
+  <!-- NEW LINK TO VIEW SCHEDULE LIST -->
+  <div class="mb-3">
+    <a href="/" class="btn btn-secondary">Back to Schedule List</a>
+  </div>
+  <!-- END NEW LINK -->
+
   <form method="GET" action="/faculty/schedule" class="row row-cols-lg-auto g-3 align-items-end mb-4">
     <div class="col-12">
       <label class="form-label">Faculty</label>
@@ -82,7 +95,6 @@
   <?php endif; ?>
 
   <?php
-  // Generate the time slots for table
   function generateTimeSlots($start, $end, $interval=30) {
     $slots = [];
     $cur   = strtotime($start);
@@ -160,7 +172,6 @@ function formatAMPM(date) {
 }
 
 function plotSchedule() {
-  // scheduleData is coming from PHP
   const data = <?= json_encode($scheduleData) ?>;
 
   data.forEach(sched => {
@@ -189,7 +200,6 @@ function plotSchedule() {
       <div>Room: ${room}</div>
     `;
 
-    // Remove the extra cells that get merged
     for (let i = 1; i < blocks.length; i++) {
       const nextSel = `td[data-day='${day}'][data-slot='${blocks[i]}']`;
       const nextTd  = document.querySelector(nextSel);

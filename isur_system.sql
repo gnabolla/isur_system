@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 10, 2025 at 07:16 AM
+-- Generation Time: Jan 13, 2025 at 01:48 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -156,6 +156,8 @@ CREATE TABLE `faculty_subjects` (
   `id` int(11) NOT NULL,
   `faculty_id` int(11) NOT NULL,
   `subject_id` int(11) NOT NULL,
+  `school_year_id` int(11) NOT NULL,
+  `semester_id` int(11) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -244,10 +246,7 @@ CREATE TABLE `schedules` (
 --
 
 INSERT INTO `schedules` (`id`, `faculty_id`, `subject_id`, `section_id`, `room_id`, `semester_id`, `program_id`, `department_id`, `school_year_id`, `day`, `start_time`, `end_time`, `class_type`, `created_at`, `updated_at`) VALUES
-(4, 21, 14, 1, 7, 2, 1, 1, 1, 'Thu', '07:30:00', '10:30:00', 'lecture', '2025-01-07 07:41:42', '2025-01-10 03:14:47'),
-(6, 21, 14, 3, 6, 2, 1, 1, 1, 'Wed', '07:30:00', '10:30:00', 'lecture', '2025-01-07 11:52:44', '2025-01-07 11:52:44'),
-(7, 21, 14, 3, 7, 2, 1, 1, 1, 'Tue', '07:30:00', '10:30:00', 'lecture', '2025-01-10 03:14:15', '2025-01-10 03:14:15'),
-(8, 21, 14, 1, 1, 2, 1, 1, 1, 'Mon', '07:30:00', '08:30:00', 'lecture', '2025-01-10 03:15:19', '2025-01-10 03:20:48');
+(3, 21, 14, 1, 7, 2, 1, 2, 1, 'Mon', '07:30:00', '10:30:00', 'lecture', '2025-01-13 11:51:00', '2025-01-13 11:51:00');
 
 -- --------------------------------------------------------
 
@@ -523,7 +522,9 @@ ALTER TABLE `faculties`
 ALTER TABLE `faculty_subjects`
   ADD PRIMARY KEY (`id`),
   ADD KEY `fk_fs_faculty` (`faculty_id`),
-  ADD KEY `fk_fs_subject` (`subject_id`);
+  ADD KEY `fk_fs_subject` (`subject_id`),
+  ADD KEY `idx_faculty_subjects_school_year_id` (`school_year_id`),
+  ADD KEY `idx_faculty_subjects_semester_id` (`semester_id`);
 
 --
 -- Indexes for table `programs`
@@ -653,7 +654,7 @@ ALTER TABLE `rooms`
 -- AUTO_INCREMENT for table `schedules`
 --
 ALTER TABLE `schedules`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `school_years`
@@ -727,6 +728,8 @@ ALTER TABLE `faculties`
 -- Constraints for table `faculty_subjects`
 --
 ALTER TABLE `faculty_subjects`
+  ADD CONSTRAINT `fk_faculty_subjects_schoolyear` FOREIGN KEY (`school_year_id`) REFERENCES `school_years` (`id`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_faculty_subjects_semester` FOREIGN KEY (`semester_id`) REFERENCES `semesters` (`id`) ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_fs_faculty` FOREIGN KEY (`faculty_id`) REFERENCES `faculties` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `fk_fs_subject` FOREIGN KEY (`subject_id`) REFERENCES `subjects` (`id`) ON DELETE CASCADE;
 

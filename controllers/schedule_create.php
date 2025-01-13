@@ -6,7 +6,7 @@ $config = require 'config.php';
 
 $db = new Database($config['database'], 'root', '');
 
-// --- 1. Fetch data for dropdowns ---
+// 1. Fetch data for dropdowns
 $schoolYears = $db->query("
     SELECT id, name
     FROM school_years
@@ -57,19 +57,26 @@ $subjects = $db->query("
 
 $error = '';
 
-// --- 2. Handle form submission ---
+// 2. Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $schoolYearId   = $_POST['school_year_id'] ?? null;
-    $semesterId     = $_POST['semester_id']    ?? null;
-    $departmentId   = $_POST['department_id']  ?? null;
-    $programId      = $_POST['program_id']     ?? null;
-    $facultyId      = $_POST['faculty_id']     ?? null;
-    $sectionId      = $_POST['section_id']     ?? null;
-    $roomId         = $_POST['room_id']        ?? null;
-    $subjectId      = $_POST['subject_id']     ?? null;
-    $day            = $_POST['day']            ?? null;
-    $startTime      = $_POST['start_time']     ?? null;
-    $endTime        = $_POST['end_time']       ?? null;
+    // Store form inputs in session
+    $_SESSION['form_data'] = $_POST;
+
+    $schoolYearId = $_POST['school_year_id'] ?? null;
+    $semesterId   = $_POST['semester_id']   ?? null;
+    $departmentId = $_POST['department_id'] ?? null;
+    $programId    = $_POST['program_id']    ?? null;
+    $facultyId    = $_POST['faculty_id']    ?? null;
+    $sectionId    = $_POST['section_id']    ?? null;
+    $roomId       = $_POST['room_id']       ?? null;
+    $subjectId    = $_POST['subject_id']    ?? null;
+    $day          = $_POST['day']           ?? null;
+    $startTime    = $_POST['start_time']    ?? null;
+    $endTime      = $_POST['end_time']      ?? null;
+
+    // Convert to 24-hour format
+    $startTime24  = date("H:i:s", strtotime($startTime));
+    $endTime24    = date("H:i:s", strtotime($endTime));
 
     // 2.a: Check for conflicts
     $conflictSql = "
@@ -103,7 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($conflictCount > 0) {
         $error = "Conflict detected. Please choose another schedule.";
     } else {
-        // 2.b: Insert new schedule if no conflict
+        // 2.b: Insert
         $sql = "
             INSERT INTO schedules (
                 school_year_id, semester_id,
@@ -124,17 +131,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $roomId,
             $subjectId,
             $day,
-            $startTime,
-            $endTime
+            $startTime24,
+            $endTime24
         ];
 
         $db->query($sql, $params);
 
-        // 2.c: Redirect
-        header('Location: /?schedule_created=1');
+        // 2.c: Redirect back to create page (still in same session)
+        header('Location: /schedule/create?created=1');
         exit;
     }
 }
 
-// --- 3. Show the form ---
+// 3. Show the form
 require 'views/create.view.php';
