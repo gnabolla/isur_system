@@ -42,9 +42,9 @@
   </form>
 
   <div class="mt-4">
-    <a href="/schedule/create" class="btn btn-sm btn-success">Create New Schedule</a>
+    <a href="schedule/create" class="btn btn-sm btn-success">Create New Schedule</a>
     <!-- [NEW LINK] -->
-    <a href="/faculty/schedule" class="btn btn-sm btn-info">View Faculty Schedule</a>
+    <a href="/schedule/general" class="btn btn-sm btn-info">View Schedule</a>
   </div>
   <hr>
 

@@ -7,48 +7,48 @@ if (session_status() === PHP_SESSION_NONE) {
 $formData = $_SESSION['form_data'] ?? [];
 
 // $schoolYears, $semesters, $departments, $programs, $faculties, $sections,
-// $rooms, $subjects, and $error from controller.
+// $rooms, $subjects, and $error come from the controller.
 
 $error = $error ?? '';
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Create Schedule</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
-    <style>
-        .time-table {
-            width: 100%;
-            border-collapse: collapse;
-            table-layout: fixed;
-        }
-        .time-table th, .time-table td {
-            border: 1px solid #ccc;
-            text-align: center;
-            padding: 0.3rem;
-            font-size: 0.85rem;
-        }
-        .time-column {
-            width: 150px;
-        }
-        .disabled {
-            background-color: #f5c6cb !important;
-        }
-        .merged-cell {
-            background-color: #f5c6cb !important;
-            vertical-align: middle;
-            font-weight: bold;
-        }
-        .selected {
-            background-color: #c3e6cb !important;
-        }
-        .disabled-table {
-            pointer-events: none;
-            opacity: 0.5;
-        }
-    </style>
+<meta charset="UTF-8">
+<title>Create Schedule</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+<style>
+.time-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+.time-table th, .time-table td {
+    border: 1px solid #ccc;
+    text-align: center;
+    padding: 0.3rem;
+    font-size: 0.85rem;
+}
+.time-column {
+    width: 150px;
+}
+.disabled {
+    background-color: #f5c6cb !important;
+}
+.merged-cell {
+    background-color: #f5c6cb !important;
+    vertical-align: middle;
+    font-weight: bold;
+}
+.selected {
+    background-color: #c3e6cb !important;
+}
+.disabled-table {
+    pointer-events: none;
+    opacity: 0.5;
+}
+</style>
 </head>
 <body>
 <div class="container my-5">
@@ -286,6 +286,7 @@ $(function(){
 let isMouseDown = false;
 let selectedDay = null;
 let selectedCells = [];
+let originalTbodyHTML = document.querySelector('#timetable tbody').innerHTML;
 
 function parseTimeStr(t) {
     return new Date("01/01/2020 " + t);
@@ -338,6 +339,9 @@ document.addEventListener('mouseup', () => {
 });
 
 document.querySelector('#fetchAvailability').addEventListener('click', () => {
+    // Restore full table each time so previously removed cells come back
+    document.querySelector('#timetable tbody').innerHTML = originalTbodyHTML;
+
     let sy = $('[name="school_year_id"]').val();
     let sem = $('[name="semester_id"]').val();
     let dep = $('[name="department_id"]').val();
@@ -345,16 +349,19 @@ document.querySelector('#fetchAvailability').addEventListener('click', () => {
     let fac = $('[name="faculty_id"]').val();
     let sec = $('[name="section_id"]').val();
     let rm = $('[name="room_id"]').val();
-    let sub = $('[name="subject_id"]').val();
+    // let sub = $('[name="subject_id"]').val(); // removed from query
 
-    if (!sy || !sem || !dep || !prog || !fac || !sub) {
+    if (!sy || !sem || !dep || !prog || !fac) {
         alert('Please fill all required fields first.');
         return;
     }
+
+    // Clear classes and text from each cell in the freshly restored table
     $('#timetable td[data-day]')
         .removeClass('disabled selected merged-cell')
         .removeAttr('rowspan')
         .html('');
+
     clearSelection();
     enableTimetable(false);
 
@@ -367,7 +374,7 @@ document.querySelector('#fetchAvailability').addEventListener('click', () => {
     });
     if (sec) q.set('section_id', sec);
     if (rm) q.set('room_id', rm);
-    if (sub) q.set('subject_id', sub);
+    // if (sub) q.set('subject_id', sub); // removed
 
     fetch('/schedule/availability?' + q)
     .then(r => r.json())
@@ -380,7 +387,6 @@ document.querySelector('#fetchAvailability').addEventListener('click', () => {
             let subj = sched.subject_code || '';
             let room = sched.room_name || '';
             let sectionName = sched.section_name || '';
-
             let blocks = generateBlocks(stime, etime);
             if (!blocks.length) return;
 
@@ -397,6 +403,10 @@ document.querySelector('#fetchAvailability').addEventListener('click', () => {
                 <div><strong>Faculty:</strong> ${facultyName}</div>
                 <div><strong>Section:</strong> ${sectionName}</div>
                 <div><strong>Room:</strong> ${room}</div>
+                <div class="mt-2">
+                    <a href="/schedule/edit?id=${sched.id}" class="btn btn-sm btn-warning">Edit</a>
+                    <a href="/schedule/delete?id=${sched.id}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this schedule?');">Delete</a>
+                </div>
             `;
             for (let i = 1; i < blocks.length; i++) {
                 let nextTdSel = `#timetable td[data-day='${day}'][data-slot='${blocks[i]}']`;
@@ -421,6 +431,7 @@ function generateBlocks(startTimeStr, endTimeStr) {
     }
     return slots;
 }
+
 function formatAMPM(date) {
     let hours = date.getHours();
     let minutes = date.getMinutes();
